@@ -9,7 +9,7 @@ Deno.serve(async (request: Request) => {
   try {
     // 2. 核心请求逻辑（与你之前的代码基本一致）
     // 调用外部 API 时传入 signal，以便超时时可以中断请求
-    const response = await fetch('https://v1.hitokoto.cn/', {
+    const response = await fetch('https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=e&c=i&c=k', {
       signal: controller.signal,
     });
     
