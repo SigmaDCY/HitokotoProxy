@@ -25,7 +25,7 @@ Deno.serve(async (request: Request) => {
     // 拼接句子、作者、出处（这部分逻辑完全不变）
     let combined = data.hitokoto;
     if (data.from_who) {
-      combined += ' —— ' + data.from_who;
+      combined += '\n —— ' + data.from_who;
     }
 
     // 返回给 Fluid 主题的格式（这部分也完全不变）
