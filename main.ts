@@ -37,7 +37,7 @@ Deno.serve(async (request: Request) => {
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=30',
+        'Cache-Control': 'public, max-age=5',
         'Access-Control-Allow-Origin': '*',
       },
     });
