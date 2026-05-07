@@ -1,5 +1,5 @@
 Deno.serve(async (request: Request) => {
-  // 1. CORS 预检处理
+  // CORS 预检处理
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -25,19 +25,27 @@ Deno.serve(async (request: Request) => {
       throw new Error(`一言 API 响应异常: ${response.status}`);
     }
 
-    const data = await response.json();      // 一言返回的原始对象
+    const data = await response.json();
     let combined = data.hitokoto;
-    if (data.from_who) combined += ' —— ' + data.from_who;
-    if (data.from) combined += '《' + data.from + '》';
 
-    // 返回的 JSON 中，hitokoto 依然是拼接后的句子，同时多了 original 原始数据
+    if (data.from_who) {
+      // 有作者时：句子 —— 作者《出处》
+      combined += ' —— ' + data.from_who;
+      if (data.from) {
+        combined += '《' + data.from + '》';
+      }
+    } else {
+      // 作者为 null 时：句子 —— 佚名（不写出处）
+      combined += ' —— 佚名';
+    }
+
     return new Response(JSON.stringify({
       hitokoto: combined,
-      original: data, // ← 一言返回的全部原始字段
+      original: data,
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=5',
+        'Cache-Control': 'public, max-age=5',  // 缩短为 5 秒
         'Access-Control-Allow-Origin': '*',
       },
     });
@@ -46,7 +54,7 @@ Deno.serve(async (request: Request) => {
     console.error('获取一言失败:', error);
     return new Response(JSON.stringify({
       hitokoto: '世界很大，我想去看看。 —— 佚名',
-      original: null,   // 错误时没有原始数据
+      original: null,
     }), {
       headers: {
         'Content-Type': 'application/json',
