@@ -1,6 +1,5 @@
-// main.ts
 Deno.serve(async (request: Request) => {
-  // 1. 处理 CORS 预检请求
+  // 1. CORS 预检处理
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -17,7 +16,7 @@ Deno.serve(async (request: Request) => {
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const response = await fetch('https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=e&c=i&c=k', {
+    const response = await fetch('https://v1.hitokoto.cn/', {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -26,28 +25,32 @@ Deno.serve(async (request: Request) => {
       throw new Error(`一言 API 响应异常: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json();      // 一言返回的原始对象
     let combined = data.hitokoto;
-    if (data.from_who) combined += '\n —— ' + data.from_who;
+    if (data.from_who) combined += ' —— ' + data.from_who;
+    if (data.from) combined += '《' + data.from + '》';
 
-    // 3. 返回结果，并添加 CORS 头部
-    return new Response(JSON.stringify({ hitokoto: combined }), {
+    // 返回的 JSON 中，hitokoto 依然是拼接后的句子，同时多了 original 原始数据
+    return new Response(JSON.stringify({
+      hitokoto: combined,
+      original: data, // ← 一言返回的全部原始字段
+    }), {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=30',
-        'Access-Control-Allow-Origin': '*',   // ← 关键加入
+        'Access-Control-Allow-Origin': '*',
       },
     });
 
   } catch (error) {
     console.error('获取一言失败:', error);
-    // 错误时也加上 CORS 头部
     return new Response(JSON.stringify({
-      hitokoto: '世界很大，我想去看看。\n—— 佚名',
+      hitokoto: '世界很大，我想去看看。 —— 佚名',
+      original: null,   // 错误时没有原始数据
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',   // ← 关键加入
+        'Access-Control-Allow-Origin': '*',
       },
     });
   }
