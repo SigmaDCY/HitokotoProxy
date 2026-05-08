@@ -39,8 +39,10 @@ Deno.serve(async (request: Request) => {
       combined += ' —— 佚名';
     }
 
+    const time = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
     const origin = request.headers.get('Origin') || 'unknown';
-    console.log(`[请求来源] ${origin}  |  [一言] ${combined}`);
+    const ip = request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() || 'unknown';
+    console.log(`[${time}] [IP: ${ip}] [来源: ${origin}] 一言: ${combined}`);
     
     return new Response(JSON.stringify({
       hitokoto: combined,
