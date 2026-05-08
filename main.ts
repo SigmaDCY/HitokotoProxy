@@ -1,4 +1,4 @@
-Deno.serve(async (request: Request) => {
+Deno.serve(async (request: Request, info: Deno.ServeHandlerInfo) => {
   // CORS 预检处理
   if (request.method === 'OPTIONS') {
     return new Response(null, {
