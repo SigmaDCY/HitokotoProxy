@@ -39,6 +39,9 @@ Deno.serve(async (request: Request) => {
       combined += ' —— 佚名';
     }
 
+    const origin = request.headers.get('Origin') || 'unknown';
+    console.log(`[请求来源] ${origin}  |  [一言] ${combined}`);
+    
     return new Response(JSON.stringify({
       hitokoto: combined,
       original: data,
