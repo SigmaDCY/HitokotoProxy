@@ -41,7 +41,8 @@ Deno.serve(async (request: Request) => {
 
     const time = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
     const origin = request.headers.get('Origin') || 'unknown';
-    const ip = request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() || 'unknown';
+    const forwarded = request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim();
+    const ip = forwarded || info.remoteAddr?.hostname || 'unknown';
     console.log(`[${time}] [IP: ${ip}] [来源: ${origin}] 一言: ${combined}`);
     
     return new Response(JSON.stringify({
